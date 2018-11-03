@@ -34,7 +34,7 @@ SetWorkingDir, %BackupDir%
 
 ;Save Hotkey. Change 'F6' to the Key of your choice.
 ;This hotkey will create a new save in the current run, and select it.
-F6::
+~F6::
 {
     ; Execute function only when DS3 window is active
     if (!IsDarkSouls3WindowActive())
@@ -85,7 +85,7 @@ F6::
 
 ;Load Hotkey. Change 'F8'to the key of your choice.
 ;This hotkey loads the last save selected, or last save created - whichever is most recent.
-F8::
+~F8::
 {
     ; Execute function only when DS3 window is active
     if (!IsDarkSouls3WindowActive())
