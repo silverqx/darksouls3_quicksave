@@ -25,7 +25,7 @@ DSWindowTitle := "DARK SOULS III"
 ; If the Backup Save File was not found, try to Restore previous one
 ; This is the counter, which counts, how how many times to try to Restore
 TryRestoreCounter := 8
-    
+
 ; Create Backup Folder if doesn't exist
 if (!FileExist(BackupDir))
     FileCreateDir, %BackupDir%
@@ -69,13 +69,13 @@ SetWorkingDir, %BackupDir%
     file.Length := 0
     file.Write(Index)
     file.Close()
-    
+
     ; Create Backup File by Index variable
     bakFileName := Index . "_" . SaveFileName
     FileCopy, %SaveFile%, %bakFileName%, 1
 
     return
-    
+
     ; Errors Shorcut Code
     ;~ MsgBox, %ErrorLevel%
     ;~ MsgBox, %A_LastError%
@@ -118,7 +118,7 @@ SetWorkingDir, %BackupDir%
         ; If Save File does not exist, try next one
         if (!FileExist(bakFileName))
             continue
-        
+
         ; Backup current Save File
         FileCopy, %SaveFile%, %SaveBakFile%, 1
         ; Restore Last Backup File
@@ -159,14 +159,14 @@ IsDarkSouls3WindowActive()
     ; Case-insensitive compare
     if (DSWindowTitle = Title)
         return true
-    
+
     return false
 }
 
 ProcessSuspend(PID_or_Name)
 {
     pid := InStr(PID_or_Name,".") ? ProcessExist(PID_or_Name) : PID_or_Name
-    
+
     h := DllCall("OpenProcess", "uInt", 0x1F0FFF, "Int", 0, "Int", pid)
     if (!h)
         return -1
@@ -174,11 +174,11 @@ ProcessSuspend(PID_or_Name)
     DllCall("ntdll.dll\NtSuspendProcess", "Int", h)
     DllCall("CloseHandle", "Int", h)
 }
- 
+
 ProcessResume(PID_or_Name)
 {
     pid := InStr(PID_or_Name,".") ? ProcessExist(PID_or_Name) : PID_or_Name
-    
+
     h := DllCall("OpenProcess", "uInt", 0x1F0FFF, "Int", 0, "Int", pid)
     if (!h)
         return -1
