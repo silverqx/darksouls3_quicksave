@@ -1,4 +1,4 @@
-; Silver Zachara <silver.zachara@gmail.com> 2018
+﻿; Silver Zachara <silver.zachara@gmail.com> 2018
 
 #Persistent
 #UseHook On
@@ -10,7 +10,7 @@ SaveBakFileName := "DS30000.sl2.bak"
 SaveFile := SaveFileDir . SaveFileName
 SaveBakFile := SaveFileDir . SaveBakFileName
 
-BackupDirName := "new_game_1\"
+BackupDirName := "new_game_2\"
 BackupDir := SaveFileDir . BackupDirName
 
 IndexFileName := ".index"
