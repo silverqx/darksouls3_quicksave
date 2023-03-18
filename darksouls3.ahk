@@ -54,7 +54,7 @@ SetWorkingDir, %BackupDir%
     ; Read and Write Index from .index file
     file := FileOpen(IndexFile, "rw", "UTF-8-RAW")
     if (!IsObject(file)) {
-        MsgBox Can't open Index File for rw.`n`n%IndexFile%
+        MsgBox, Can't open Index File for rw.`n`n%IndexFile%
         return
     }
     ; Set hidden attribute for a Index File
@@ -100,7 +100,7 @@ SetWorkingDir, %BackupDir%
     if (!Index) {
         file := FileOpen(IndexFile, "r", "UTF-8-RAW")
         if (!IsObject(file)) {
-            MsgBox Can't open Index File for reading.`n`n%IndexFile%
+            MsgBox, Can't open Index File for reading.`n`n%IndexFile%
             return
         }
         Index := file.Read(20)
