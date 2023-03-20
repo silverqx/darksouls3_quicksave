@@ -157,8 +157,8 @@ IsDarkSouls3WindowActive()
     global DSWindowTitle
 
     WinGetActiveTitle, Title
-    ; Case-insensitive compare
-    if (DSWindowTitle = Title)
+    ; Case-sensitive compare
+    if (DSWindowTitle == Title)
         return true
 
     return false
