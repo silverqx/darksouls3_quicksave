@@ -5,23 +5,35 @@
 #UseHook On
 #SingleInstance Force
 
+; Dark Souls Prepare to die
+;SaveFileDir := "c:\Users\Silver Zachara\Documents\NBGI\DarkSouls\WaLMaRT\"
+;SaveFileName := "DRAKS0005.sl2"
+;SaveBakFileName := "DRAKS0005.sl2.bak"
+;BackupDirName := "new_game_1\"
+;DarkSoulsExeName := "DATA.exe"
+;DSWindowTitle := "DARK SOULS"
+;DSVersion := 1
+
+; Dark Souls 3
 SaveFileDir := "c:\Users\Silver Zachara\AppData\Roaming\DarkSoulsIII\0110000100000666\"
 SaveFileName := "DS30000.sl2"
 SaveBakFileName := "DS30000.sl2.bak"
+BackupDirName := "new_game_5_ng2+\"
+DarkSoulsExeName := "DarkSoulsIII.exe"
+DSWindowTitle := "DARK SOULS III"
+DSVersion := 3
+
+; Initialize variables
 SaveFile := SaveFileDir . SaveFileName
 SaveBakFile := SaveFileDir . SaveBakFileName
 
-BackupDirName := "new_game_2\"
 BackupDir := SaveFileDir . BackupDirName
 
 IndexFileName := ".index"
 IndexFile := BackupDir . IndexFileName
 Index := 0
 
-DarkSouls3ExeName := "DarkSoulsIII.exe"
 ToggleSuspended := false
-
-DSWindowTitle := "DARK SOULS III"
 
 ; If the Backup Save File was not found, try to Restore previous one
 ; This is the counter, which counts, how how many times to try to Restore
@@ -106,10 +118,10 @@ SetWorkingDir, %BackupDir%
 ~^F2::
 {
     if ToggleSuspended {
-        ProcessResume(DarkSouls3ExeName)
+        ProcessResume(DarkSoulsExeName)
         ToggleSuspended := false
     } else {
-        ProcessSuspend(DarkSouls3ExeName)
+        ProcessSuspend(DarkSoulsExeName)
         ToggleSuspended := true
     }
 
