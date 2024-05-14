@@ -116,6 +116,13 @@ SetWorkingDir, %BackupDir%
     return
 }
 
+; Exit darksouls3.ahk itself
+^!+F4::
+{
+    MsgBox,, Dark Souls %DSVersion%, Exiting darksouls3.ahk, 1
+    ExitApp
+}
+
 ; Check if DS3 window is active
 IsDarkSouls3WindowActive()
 {
