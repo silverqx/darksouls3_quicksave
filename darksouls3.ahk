@@ -1,26 +1,41 @@
-﻿; Silver Zachara <silver.zachara@gmail.com> 2018
+﻿; Silver Zachara <silver.zachara@gmail.com> 2018-2024
 
-#NoEnv
-#Persistent
-#UseHook On
+#Requires AutoHotkey v2
+
+Persistent
 #SingleInstance Force
+#UseHook True
+
+;@Ahk2Exe-Base ../v2/AutoHotkey64.exe
+;@Ahk2Exe-SetCompanyName Crystal Studio
+;@Ahk2Exe-SetCopyright Copyright (©) 2024 Silver Zachara
+;@Ahk2Exe-SetFileVersion %A_AhkVersion%
+;@Ahk2Exe-SetOrigFilename %A_ScriptName~\.[^\.]+$~.exe%
+;@Ahk2Exe-SetProductVersion 1.0.0.0
+;@Ahk2Exe-UseResourceLang 0x0409
 
 ; Dark Souls Prepare to die
-;SaveFileDir := "c:\Users\Silver Zachara\Documents\NBGI\DarkSouls\WaLMaRT\"
-;SaveFileName := "DRAKS0005.sl2"
-;SaveBakFileName := "DRAKS0005.sl2.bak"
-;BackupDirName := "new_game_1\"
-;DarkSoulsExeName := "DATA.exe"
-;DSWindowTitle := "DARK SOULS"
+;;@Ahk2Exe-SetDescription Dark Souls 1 Save Manager (AutoHotkey)
+;;@Ahk2Exe-SetMainIcon darksouls.ico
+;;@Ahk2Exe-SetName Dark Souls 1 Save Manager
+;SaveFileDir := A_MyDocuments . '\NBGI\DarkSouls\WaLMaRT\'
+;SaveFileName := 'DRAKS0005.sl2'
+;SaveBakFileName := 'DRAKS0005.sl2.bak'
+;BackupDirName := 'new_game_1\'
+;DarkSoulsExeName := 'DATA.exe'
+;DSWindowTitle := 'DARK SOULS'
 ;DSVersion := 1
 
 ; Dark Souls 3
-SaveFileDir := "c:\Users\Silver Zachara\AppData\Roaming\DarkSoulsIII\0110000100000666\"
-SaveFileName := "DS30000.sl2"
-SaveBakFileName := "DS30000.sl2.bak"
-BackupDirName := "new_game_5_ng2+\"
-DarkSoulsExeName := "DarkSoulsIII.exe"
-DSWindowTitle := "DARK SOULS III"
+;@Ahk2Exe-SetDescription Dark Souls 3 Save Manager (AutoHotkey)
+;@Ahk2Exe-SetMainIcon %A_ScriptName~\.[^\.]+$~.ico%
+;@Ahk2Exe-SetName Dark Souls 3 Save Manager
+SaveFileDir := A_AppData . '\DarkSoulsIII\0110000100000666\'
+SaveFileName := 'DS30000.sl2'
+SaveBakFileName := 'DS30000.sl2.bak'
+BackupDirName := 'new_game_5_ng2+\'
+DarkSoulsExeName := 'DarkSoulsIII.exe'
+DSWindowTitle := 'DARK SOULS III'
 DSVersion := 3
 
 ; Initialize variables
@@ -29,7 +44,7 @@ SaveBakFile := SaveFileDir . SaveBakFileName
 
 BackupDir := SaveFileDir . BackupDirName
 
-IndexFileName := ".index"
+IndexFileName := '.index'
 IndexFile := BackupDir . IndexFileName
 Index := 0
 
@@ -41,44 +56,33 @@ TryRestoreCounter := 8
 
 ; Create Backup Folder if doesn't exist
 if (!FileExist(BackupDir))
-    FileCreateDir, %BackupDir%
+    DirCreate(BackupDir)
 
-SetWorkingDir, %BackupDir%
+SetWorkingDir(BackupDir)
 
-; Save Hotkey. Change 'F5' to the Key of your choice.
-; This hotkey will overwrite a last Backup Save File in the current run, and select it.
-~F5::
+; Save game (CREATE a new Save file).
+F5::CreateSave(false)
+
+; Save game (OVERWRITE a last Save file).
+F6::CreateSave(true)
+
+; Load game (restore the most recent Save file).
+F8::
 {
-    CreateSave(false)
-    return
-}
+    global Index
 
-; Save Hotkey. Change 'F6' to the Key of your choice.
-; This hotkey will create a new Backup Save File in the current run, and select it.
-~F6::
-{
-    CreateSave(true)
-    return
-}
-
-; Load Hotkey. Change 'F8'to the key of your choice.
-; This hotkey loads the last save selected, or last save created - whichever is most recent.
-~F8::
-{
-    ; Execute function only when DS3 window is active
+    ; Execute function only when Dark Souls window is active
     if (!IsDarkSouls3WindowActive())
         return
 
-    if (!FileExist(IndexFile)) {
-        MsgBox, Index File doesn't exist, nothing to Restore.`n`n%IndexFile%
-        return
-    }
+    if (!FileExist(IndexFile))
+        return MsgBox("Index File doesn't exist, nothing to Restore.`n`n" . IndexFile)
 
     ; On the first run, a Index may not be valid
     if (!Index) {
-        file := FileOpen(IndexFile, "r", "UTF-8-RAW")
+        file := FileOpen(IndexFile, 'r', 'UTF-8-RAW')
         if (!IsObject(file)) {
-            MsgBox, Can't open Index File for reading.`n`n%IndexFile%
+            MsgBox("Can't open Index File for reading.`n`n" . IndexFile)
             return
         }
         Index := file.Read(20)
@@ -87,20 +91,20 @@ SetWorkingDir, %BackupDir%
 
     ; Restore Backup File loop
     wasRestored := false
-    Loop % TryRestoreCounter {
+    Loop TryRestoreCounter {
         ; Calculate Current / Previous Index
         tmpIndex := Index - (A_Index - 1)
         ; Get Backup File Name by Index
-        bakFileName := tmpIndex . "_" . SaveFileName
+        bakFileName := tmpIndex . '_' . SaveFileName
 
         ; If Save File does not exist, try next one
         if (!FileExist(bakFileName))
             continue
 
         ; Backup current Save File
-        FileCopy, %SaveFile%, %SaveBakFile%, 1
+        FileCopy(SaveFile, SaveBakFile, true)
         ; Restore Last Backup File
-        FileCopy, %bakFileName%, %SaveFile%, 1
+        FileCopy(bakFileName, SaveFile, true)
 
         ; Break after successful restore
         wasRestored := true
@@ -108,82 +112,71 @@ SetWorkingDir, %BackupDir%
     }
 
     if (!wasRestored)
-        MsgBox % "Failed to Restore Save File.`n`n"
-            . "Tried to Restore last %TryRestoreCounter% Backed Up Save Files, but neither was found."
-
-    return
+        MsgBox('Failed to Restore Save File.`n`n' .
+               'Tried to Restore last ' . TryRestoreCounter . ' Backed Up Save Files, ' .
+               'but neither was found.')
 }
 
-; Suspend / Resume a Dark Souls III process - ctrl + F2
-~^F2::
+; Suspend / Resume Dark Souls III process (Ctrl+F2)
+^F2::
 {
-    if ToggleSuspended {
+    global ToggleSuspended
+
+    if (ToggleSuspended) {
         ProcessResume(DarkSoulsExeName)
         ToggleSuspended := false
     } else {
         ProcessSuspend(DarkSoulsExeName)
         ToggleSuspended := true
     }
-
-    return
 }
 
 ; Exit darksouls3.ahk itself
 ^!+F4::
 {
-    MsgBox,, Dark Souls %DSVersion%, Exiting darksouls3.ahk, 1
-    ExitApp
+    MsgBox('Exiting ' . A_ScriptName, 'Dark Souls ' . DSVersion, 'T1')
+    ExitApp()
 }
 
 ; Check if DS3 window is active
 IsDarkSouls3WindowActive()
 {
-    global DSWindowTitle
-
-    WinGetActiveTitle, Title
     ; Case-sensitive compare
-    if (DSWindowTitle == Title)
-        return true
-
-    return false
+    return DSWindowTitle == WinGetTitle('A')
 }
 
 ; Create a new Backup Save file
 CreateSave(OverwriteLastSave)
 {
     global Index
-    global SaveFile, BackupDir, IndexFile, SaveFileName
 
     ; Execute function only when DS3 window is active
     if (!IsDarkSouls3WindowActive())
         return
 
-    if (!FileExist(SaveFile)) {
-        MsgBox, Dark Souls 3 Save File doesn't exist:`n`n%SaveFile%
-        return
-    }
+    if (!FileExist(SaveFile))
+        return MsgBox("Dark Souls 3 Save File doesn't exist:`n`n" . SaveFile)
 
     ; Quit, if Backup Folder doesn't exist
-    if (!FileExist(BackupDir)) {
-        MsgBox, Backup Folder doesn't exist:`n`n%BackupDir%
-        return
-    }
+    if (!FileExist(BackupDir))
+        return MsgBox("Backup Folder doesn't exist:`n`n" . BackupDir)
 
     ; Read and Write Index from .index file
-    file := FileOpen(IndexFile, "rw", "UTF-8-RAW")
-    if (!IsObject(file)) {
-        MsgBox, Can't open Index File for rw.`n`n%IndexFile%
-        return
-    }
+    file := FileOpen(IndexFile, 'rw', 'UTF-8-RAW')
+    if (!IsObject(file))
+        return MsgBox("Can't open Index File for rw.`n`n" . IndexFile)
+
     ; Set hidden attribute for a Index File
-    FileGetAttrib, IndexFileAttrs, %IndexFile%
-    if (!InStr(IndexFileAttrs, "H", true))
-        FileSetAttrib, +H, %IndexFile%
+    indexFileAttrs := FileGetAttrib(IndexFile)
+    if (!InStr(indexFileAttrs, 'H', true))
+        FileSetAttrib('+H', IndexFile)
 
     Index := file.Read(20)
     Index := Index ? Index : 0
-    ; Doesn't overwrite a last Backup Save File, instead create a new Backup Save
-    if (!OverwriteLastSave) {
+
+    ; Doesn't overwrite a last Backup Save File, instead create a new Backup Save.
+    ; The Index = 0 can hit when F6 is pressed and the save folder is empty.
+    if (!OverwriteLastSave || Index = 0) {
         ++Index
         file.Pos := 0
         file.Length := 0
@@ -192,44 +185,42 @@ CreateSave(OverwriteLastSave)
     file.Close()
 
     ; Create Backup Save File by Index variable
-    bakFileName := Index . "_" . SaveFileName
-    FileCopy, %SaveFile%, %bakFileName%, true
-
-    return
+    bakFileName := Index . '_' . SaveFileName
+    FileCopy(SaveFile, bakFileName, true)
 
     ; Errors Shorcut Code
-    ;~ MsgBox, %ErrorLevel%
-    ;~ MsgBox, %A_LastError%
-    ;~ return
+    ; MsgBox ErrorLevel
+    ; MsgBox A_LastError
 }
 
+; Suspend the given process
 ProcessSuspend(PID_or_Name)
 {
-    pid := InStr(PID_or_Name,".") ? ProcessExist(PID_or_Name) : PID_or_Name
+    pid := InStr(PID_or_Name, '.') ? ProcessExist(PID_or_Name) : PID_or_Name
 
-    h := DllCall("OpenProcess", "uInt", 0x1F0FFF, "Int", 0, "Int", pid)
-    if (!h)
+    handle := DllCall('OpenProcess', 'UInt', 0x1F0FFF, 'Int', 0, 'Int', pid)
+    ; Nothing to resume
+    if (!handle)
         return -1
 
-    DllCall("ntdll.dll\NtSuspendProcess", "Int", h)
-    DllCall("CloseHandle", "Int", h)
+    DllCall('ntdll.dll\NtSuspendProcess', 'Int', handle)
+    DllCall('CloseHandle', 'Int', handle)
+
+    return pid
 }
 
+; Resume the given process
 ProcessResume(PID_or_Name)
 {
-    pid := InStr(PID_or_Name,".") ? ProcessExist(PID_or_Name) : PID_or_Name
+    pid := InStr(PID_or_Name, '.') ? ProcessExist(PID_or_Name) : PID_or_Name
 
-    h := DllCall("OpenProcess", "uInt", 0x1F0FFF, "Int", 0, "Int", pid)
-    if (!h)
+    handle := DllCall('OpenProcess', 'UInt', 0x1F0FFF, 'Int', 0, 'Int', pid)
+    ; Nothing to resume
+    if (!handle)
         return -1
 
-    DllCall("ntdll.dll\NtResumeProcess", "Int", h)
-    DllCall("CloseHandle", "Int", h)
-}
+    DllCall('ntdll.dll\NtResumeProcess', 'Int', handle)
+    DllCall('CloseHandle', 'Int', handle)
 
-ProcessExist(PID_or_Name = "")
-{
-    Process, Exist, %PID_or_Name%
-
-    return Errorlevel
+    return pid
 }
